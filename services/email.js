@@ -60,7 +60,7 @@ async function sendApprovalRequest(token, tx) {
 
   const mailOptions = {
     from: `"הבנק של עומר" <${process.env.SMTP_USER}>`,
-    to: ['uri.vardi@gmail.com', 'irit.neumann@gmail.com'],
+    to: 'uri.vardi@gmail.com',
     subject: 'עומר מבקש להזין תנועה חדשה — אישור נדרש',
     text: textBody,
     html: htmlBody,
