@@ -30,7 +30,8 @@ async function loadTransactions() {
     const tbody = document.getElementById('tx-body');
     tbody.innerHTML = '';
     selectedTxId = null;
-    updateDeleteBanner(null);
+    const inlineRow = document.getElementById('delete-inline-row');
+    if (inlineRow) inlineRow.remove();
 
     if (!data.transactions || data.transactions.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-state">אין תנועות להצגה</td></tr>';
