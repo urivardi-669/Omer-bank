@@ -6,6 +6,7 @@ const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
 const closeModal = document.getElementById('close-modal');
 
+window.isAdminLoggedIn = false;
 let isAdminLoggedIn = false;
 let adminEmail = null;
 
@@ -26,6 +27,8 @@ function setAdminUI(loggedIn, email) {
   isAdminLoggedIn = loggedIn;
   adminEmail = email;
 
+  window.isAdminLoggedIn = loggedIn;
+
   if (loggedIn) {
     adminBtn.textContent = 'יציאה (' + (email ? email.split('@')[0] : 'מנהל') + ')';
     adminBtn.classList.add('logged-in');
@@ -41,6 +44,7 @@ adminBtn.addEventListener('click', async () => {
     try {
       await fetch('/api/logout', { method: 'POST' });
       setAdminUI(false, null);
+      if (typeof loadTransactions === 'function') loadTransactions();
     } catch (err) {
       console.error('שגיאה ביציאה');
     }
@@ -93,6 +97,7 @@ loginForm.addEventListener('submit', async (e) => {
       adminModal.classList.add('hidden');
       loginForm.reset();
       setAdminUI(true, data.email);
+      if (typeof loadTransactions === 'function') loadTransactions();
     }
   } catch (err) {
     loginError.textContent = 'שגיאת תקשורת, נסה שנית';

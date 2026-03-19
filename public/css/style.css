@@ -526,3 +526,56 @@ body {
     justify-content: center;
   }
 }
+
+/* Delete banner */
+.delete-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  font-size: 15px;
+  gap: 16px;
+}
+
+.delete-banner.hidden { display: none; }
+
+.delete-banner-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-delete-confirm {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-delete-confirm:hover { background: #b02a37; }
+
+.btn-delete-cancel {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-delete-cancel:hover { background: #545b62; }
+
+/* Selectable rows (admin) */
+tr.selectable { cursor: pointer; }
+tr.selectable:hover { background: #f0f4ff; }
+tr.selected { background: #dce8ff !important; }

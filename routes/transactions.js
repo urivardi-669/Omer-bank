@@ -70,4 +70,21 @@ router.post('/', async (req, res) => {
   }
 });
 
+// DELETE /api/transactions/:id
+router.delete('/:id', async (req, res) => {
+  if (!req.session || !req.session.isAdmin) {
+    return res.status(403).json({ error: 'אין הרשאה' });
+  }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: 'מזהה לא תקין' });
+
+  try {
+    await db.deleteTransaction(id);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('שגיאה במחיקת תנועה:', err.message);
+    res.status(500).json({ error: 'שגיאת שרת' });
+  }
+});
+
 module.exports = router;

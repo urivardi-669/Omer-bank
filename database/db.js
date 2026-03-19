@@ -130,6 +130,10 @@ async function markTokenUsed(id) {
   await pool.query('UPDATE tokens SET used = 1 WHERE id = $1', [id]);
 }
 
+async function deleteTransaction(id) {
+  await pool.query('DELETE FROM transactions WHERE id = $1', [id]);
+}
+
 async function getAdmin(email) {
   const { rows } = await pool.query(
     'SELECT * FROM admins WHERE email = $1',
@@ -144,6 +148,7 @@ module.exports = {
   getBalance,
   insertTransaction,
   approveTransaction,
+  deleteTransaction,
   transactionCount,
   insertToken,
   getToken,

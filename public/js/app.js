@@ -4,6 +4,7 @@ const ILS = new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS',
 
 let currentFilter = 'all';
 let searchDebounce = null;
+let selectedTxId = null;
 
 function formatAmount(val) {
   if (!val || val === 0) return '';
@@ -28,14 +29,20 @@ async function loadTransactions() {
     // Update table
     const tbody = document.getElementById('tx-body');
     tbody.innerHTML = '';
+    selectedTxId = null;
+    updateDeleteBanner(null);
 
     if (!data.transactions || data.transactions.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-state">אין תנועות להצגה</td></tr>';
       return;
     }
 
+    // Check if admin (cached on window by admin.js)
+    const adminMode = window.isAdminLoggedIn || false;
+
     for (const tx of data.transactions) {
       const tr = document.createElement('tr');
+      tr.dataset.id = tx.id;
       const balance = tx.balance_row;
       tr.innerHTML = `
         <td class="td-name">${escapeHtml(tx.name)}</td>
@@ -43,12 +50,77 @@ async function loadTransactions() {
         <td class="td-debit">${tx.debit > 0 ? formatAmount(tx.debit) : ''}</td>
         <td class="td-balance ${balance >= 0 ? 'positive' : 'negative'}">${ILS.format(balance)}</td>
       `;
+
+      if (adminMode) {
+        tr.classList.add('selectable');
+        tr.addEventListener('click', () => selectRow(tr, tx.id, tx.name));
+      }
+
       tbody.appendChild(tr);
     }
   } catch (err) {
     console.error('שגיאה בטעינת תנועות:', err);
   }
 }
+
+function selectRow(tr, id, name) {
+  // Deselect previous
+  document.querySelectorAll('#tx-body tr.selected').forEach(r => r.classList.remove('selected'));
+
+  if (selectedTxId === id) {
+    // Clicking same row deselects
+    selectedTxId = null;
+    updateDeleteBanner(null);
+  } else {
+    selectedTxId = id;
+    tr.classList.add('selected');
+    updateDeleteBanner(name);
+  }
+}
+
+function updateDeleteBanner(txName) {
+  let banner = document.getElementById('delete-banner');
+  if (!txName) {
+    if (banner) banner.classList.add('hidden');
+    return;
+  }
+  if (!banner) return;
+  document.getElementById('delete-banner-name').textContent = txName;
+  banner.classList.remove('hidden');
+}
+
+// Delete confirmation
+document.addEventListener('DOMContentLoaded', () => {
+  const banner = document.getElementById('delete-banner');
+  if (!banner) return;
+
+  document.getElementById('delete-confirm-btn').addEventListener('click', async () => {
+    if (!selectedTxId) return;
+    const btn = document.getElementById('delete-confirm-btn');
+    btn.disabled = true;
+    btn.textContent = 'מוחק...';
+
+    try {
+      const res = await fetch(`/api/transactions/${selectedTxId}`, { method: 'DELETE' });
+      if (res.ok) {
+        selectedTxId = null;
+        banner.classList.add('hidden');
+        loadTransactions();
+      }
+    } catch (err) {
+      console.error('שגיאה במחיקה:', err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'מחק';
+    }
+  });
+
+  document.getElementById('delete-cancel-btn').addEventListener('click', () => {
+    selectedTxId = null;
+    banner.classList.add('hidden');
+    document.querySelectorAll('#tx-body tr.selected').forEach(r => r.classList.remove('selected'));
+  });
+});
 
 function escapeHtml(str) {
   const div = document.createElement('div');
