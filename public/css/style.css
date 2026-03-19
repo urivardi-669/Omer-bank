@@ -527,25 +527,16 @@ body {
   }
 }
 
-/* Delete banner */
-.delete-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* Delete inline row */
+.delete-inline-cell {
   background: #fff3cd;
   border: 1px solid #ffc107;
-  border-radius: 8px;
-  padding: 14px 20px;
-  margin-bottom: 16px;
-  font-size: 15px;
-  gap: 16px;
-}
-
-.delete-banner.hidden { display: none; }
-
-.delete-banner-btns {
+  padding: 10px 16px !important;
+  font-size: 14px;
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .btn-delete-confirm {

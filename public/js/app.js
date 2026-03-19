@@ -64,47 +64,39 @@ async function loadTransactions() {
 }
 
 function selectRow(tr, id, name) {
-  // Deselect previous
+  // Remove previous inline banner
+  const existing = document.getElementById('delete-inline-row');
+  if (existing) existing.remove();
   document.querySelectorAll('#tx-body tr.selected').forEach(r => r.classList.remove('selected'));
 
   if (selectedTxId === id) {
-    // Clicking same row deselects
     selectedTxId = null;
-    updateDeleteBanner(null);
-  } else {
-    selectedTxId = id;
-    tr.classList.add('selected');
-    updateDeleteBanner(name);
-  }
-}
-
-function updateDeleteBanner(txName) {
-  let banner = document.getElementById('delete-banner');
-  if (!txName) {
-    if (banner) banner.classList.add('hidden');
     return;
   }
-  if (!banner) return;
-  document.getElementById('delete-banner-name').textContent = txName;
-  banner.classList.remove('hidden');
-}
 
-// Delete confirmation
-document.addEventListener('DOMContentLoaded', () => {
-  const banner = document.getElementById('delete-banner');
-  if (!banner) return;
+  selectedTxId = id;
+  tr.classList.add('selected');
+
+  // Insert confirmation row right after the selected row
+  const confirmRow = document.createElement('tr');
+  confirmRow.id = 'delete-inline-row';
+  confirmRow.innerHTML = `
+    <td colspan="4" class="delete-inline-cell">
+      <span>האם למחוק את השורה <strong>${escapeHtml(name)}</strong>?</span>
+      <button id="delete-confirm-btn" class="btn-delete-confirm">מחק</button>
+      <button id="delete-cancel-btn" class="btn-delete-cancel">ביטול</button>
+    </td>
+  `;
+  tr.after(confirmRow);
 
   document.getElementById('delete-confirm-btn').addEventListener('click', async () => {
-    if (!selectedTxId) return;
     const btn = document.getElementById('delete-confirm-btn');
     btn.disabled = true;
     btn.textContent = 'מוחק...';
-
     try {
       const res = await fetch(`/api/transactions/${selectedTxId}`, { method: 'DELETE' });
       if (res.ok) {
         selectedTxId = null;
-        banner.classList.add('hidden');
         loadTransactions();
       }
     } catch (err) {
@@ -117,10 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('delete-cancel-btn').addEventListener('click', () => {
     selectedTxId = null;
-    banner.classList.add('hidden');
+    confirmRow.remove();
     document.querySelectorAll('#tx-body tr.selected').forEach(r => r.classList.remove('selected'));
   });
-});
+}
+
 
 function escapeHtml(str) {
   const div = document.createElement('div');
