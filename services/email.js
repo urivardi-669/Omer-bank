@@ -1,18 +1,8 @@
-const nodemailer = require('nodemailer');
-
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-}
+const sgMail = require('@sendgrid/mail');
 
 async function sendApprovalRequest(token, tx) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
   const approvalUrl = `${process.env.BASE_URL}/api/approve/${token}`;
   const typeHebrew = tx.type === 'credit' ? 'זכות' : 'חובה';
   const amountFormatted = new Intl.NumberFormat('he-IL', {
@@ -56,17 +46,15 @@ async function sendApprovalRequest(token, tx) {
 
   const textBody = `עומר מבקש להזין תנועה חדשה\n\nשם התנועה: ${tx.name}\nסוג: ${typeHebrew}\nסכום: ${amountFormatted}\n\nלאישור התנועה לחץ כאן:\n${approvalUrl}\n\nהקישור בתוקף ל-72 שעות.`;
 
-  const transporter = createTransporter();
-
-  const mailOptions = {
-    from: `"הבנק של עומר" <${process.env.SMTP_USER}>`,
+  const msg = {
     to: ['uri.vardi@gmail.com', 'irit.neumann@gmail.com'],
+    from: process.env.SENDGRID_FROM || process.env.SMTP_USER,
     subject: 'עומר מבקש להזין תנועה חדשה — אישור נדרש',
     text: textBody,
     html: htmlBody,
   };
 
-  await transporter.sendMail(mailOptions);
+  await sgMail.send(msg);
 }
 
 module.exports = { sendApprovalRequest };
