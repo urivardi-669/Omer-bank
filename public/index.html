@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>הבנק של עומר</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <span class="header-icon">🏦</span>
+      <h1>הבנק של עומר</h1>
+    </div>
+    <div class="header-balance">
+      <span class="balance-label">מאזן נוכחי:</span>
+      <span id="balance" class="balance-amount">₪0</span>
+    </div>
+    <button id="admin-btn" class="btn-admin">כניסת מנהל</button>
+  </header>
+
+  <!-- Admin Login Modal -->
+  <div id="admin-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2>כניסת מנהל</h2>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">אימייל</label>
+          <input type="email" id="login-email" placeholder="your@email.com" required autocomplete="email"/>
+        </div>
+        <div class="form-group">
+          <label for="login-password">סיסמה</label>
+          <input type="password" id="login-password" placeholder="סיסמה" required autocomplete="current-password"/>
+        </div>
+        <div id="login-error" class="error-msg hidden"></div>
+        <div class="modal-buttons">
+          <button type="submit" class="btn-primary">כניסה</button>
+          <button type="button" id="close-modal" class="btn-secondary">ביטול</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Add Transaction Form -->
+    <section class="add-transaction-section">
+      <h2>הוספת תנועה חדשה</h2>
+      <form id="tx-form" class="tx-form">
+        <div class="form-row">
+          <div class="form-group flex-grow">
+            <label for="tx-name">שם התנועה</label>
+            <input type="text" id="tx-name" placeholder="תאר את התנועה..." required/>
+          </div>
+          <div class="form-group">
+            <label for="tx-type">סוג</label>
+            <select id="tx-type">
+              <option value="credit">זכות ✅</option>
+              <option value="debit">חובה ❌</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tx-amount">סכום (₪)</label>
+            <input type="number" id="tx-amount" placeholder="0.00" min="0.01" step="0.01" required/>
+          </div>
+          <div class="form-group form-submit">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn-primary btn-submit">שלח</button>
+          </div>
+        </div>
+        <div id="tx-message" class="tx-message hidden"></div>
+      </form>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters-section">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="חיפוש לפי שם תנועה..."/>
+      </div>
+      <div class="filter-buttons">
+        <button id="filter-all" class="btn-filter active">הכל</button>
+        <button id="filter-credit" class="btn-filter credit">זכות בלבד</button>
+        <button id="filter-debit" class="btn-filter debit">חובה בלבד</button>
+      </div>
+    </section>
+
+    <!-- Transactions Table -->
+    <section class="table-section">
+      <div class="table-wrapper">
+        <table id="tx-table">
+          <thead>
+            <tr>
+              <th>שם התנועה</th>
+              <th>זכות</th>
+              <th>חובה</th>
+              <th>מאזן</th>
+            </tr>
+          </thead>
+          <tbody id="tx-body">
+            <tr id="empty-row">
+              <td colspan="4" class="empty-state">אין תנועות להצגה</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/js/admin.js"></script>
+  <script src="/js/form.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
