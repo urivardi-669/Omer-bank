@@ -59,8 +59,12 @@ router.post('/', async (req, res) => {
 
     try {
       await sendApprovalRequest(token, { name: name.trim(), type, amount: parsedAmount });
+      console.log('✓ מייל אישור נשלח בהצלחה');
     } catch (emailErr) {
       console.error('שגיאה בשליחת מייל:', emailErr.message);
+      if (emailErr.response) {
+        console.error('SendGrid error body:', JSON.stringify(emailErr.response.body));
+      }
     }
 
     res.json({ success: true, pending: true });
