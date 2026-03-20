@@ -30,7 +30,7 @@ async function loadTransactions() {
     const tbody = document.getElementById('tx-body');
     tbody.innerHTML = '';
     selectedTxId = null;
-    const inlineRow = document.getElementById('delete-inline-row');
+    const inlineRow = document.getElementById('edit-inline-row');
     if (inlineRow) inlineRow.remove();
 
     if (!data.transactions || data.transactions.length === 0) {
@@ -54,7 +54,7 @@ async function loadTransactions() {
 
       if (adminMode) {
         tr.classList.add('selectable');
-        tr.addEventListener('click', () => selectRow(tr, tx.id, tx.name));
+        tr.addEventListener('click', () => selectRow(tr, tx.id, tx.name, tx.type, tx.amount));
       }
 
       tbody.appendChild(tr);
@@ -64,9 +64,9 @@ async function loadTransactions() {
   }
 }
 
-function selectRow(tr, id, name) {
-  // Remove previous inline banner
-  const existing = document.getElementById('delete-inline-row');
+function selectRow(tr, id, currentName, currentType, currentAmount) {
+  // Remove previous inline row
+  const existing = document.getElementById('edit-inline-row');
   if (existing) existing.remove();
   document.querySelectorAll('#tx-body tr.selected').forEach(r => r.classList.remove('selected'));
 
@@ -78,28 +78,66 @@ function selectRow(tr, id, name) {
   selectedTxId = id;
   tr.classList.add('selected');
 
-  // Insert confirmation row right after the selected row
-  const confirmRow = document.createElement('tr');
-  confirmRow.id = 'delete-inline-row';
-  confirmRow.innerHTML = `
-    <td colspan="4" class="delete-inline-cell">
-      <span>האם למחוק את השורה <strong>${escapeHtml(name)}</strong>?</span>
-      <button id="delete-confirm-btn" class="btn-delete-confirm">מחק</button>
-      <button id="delete-cancel-btn" class="btn-delete-cancel">ביטול</button>
+  const editRow = document.createElement('tr');
+  editRow.id = 'edit-inline-row';
+  editRow.innerHTML = `
+    <td colspan="4" class="edit-inline-cell">
+      <div class="edit-inline-fields">
+        <div class="edit-field-group">
+          <label class="edit-label">שם התנועה</label>
+          <input id="edit-name" class="edit-input edit-name-input" type="text" value="${escapeHtml(currentName)}"/>
+        </div>
+        <div class="edit-field-group">
+          <label class="edit-label">סוג</label>
+          <select id="edit-type" class="edit-input edit-type-input">
+            <option value="credit" ${currentType === 'credit' ? 'selected' : ''}>זכות ✅</option>
+            <option value="debit"  ${currentType === 'debit'  ? 'selected' : ''}>חובה ❌</option>
+          </select>
+        </div>
+        <div class="edit-field-group">
+          <label class="edit-label">סכום (₪)</label>
+          <input id="edit-amount" class="edit-input edit-amount-input" type="number" min="0.01" step="0.01" value="${currentAmount}"/>
+        </div>
+      </div>
+      <div class="edit-inline-btns">
+        <button id="edit-save-btn"   class="btn-edit-save">שמור</button>
+        <button id="edit-delete-btn" class="btn-delete-confirm">מחק</button>
+        <button id="edit-cancel-btn" class="btn-edit-cancel">ביטול</button>
+      </div>
     </td>
   `;
-  tr.after(confirmRow);
+  tr.after(editRow);
 
-  document.getElementById('delete-confirm-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('delete-confirm-btn');
+  document.getElementById('edit-save-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('edit-save-btn');
+    const name   = document.getElementById('edit-name').value.trim();
+    const type   = document.getElementById('edit-type').value;
+    const amount = parseFloat(document.getElementById('edit-amount').value);
+    if (!name || isNaN(amount) || amount <= 0) return;
+    btn.disabled = true;
+    btn.textContent = 'שומר...';
+    try {
+      const res = await fetch(`/api/transactions/${selectedTxId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, type, amount }),
+      });
+      if (res.ok) { selectedTxId = null; loadTransactions(); }
+    } catch (err) {
+      console.error('שגיאה בשמירה:', err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'שמור';
+    }
+  });
+
+  document.getElementById('edit-delete-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('edit-delete-btn');
     btn.disabled = true;
     btn.textContent = 'מוחק...';
     try {
       const res = await fetch(`/api/transactions/${selectedTxId}`, { method: 'DELETE' });
-      if (res.ok) {
-        selectedTxId = null;
-        loadTransactions();
-      }
+      if (res.ok) { selectedTxId = null; loadTransactions(); }
     } catch (err) {
       console.error('שגיאה במחיקה:', err);
     } finally {
@@ -108,9 +146,9 @@ function selectRow(tr, id, name) {
     }
   });
 
-  document.getElementById('delete-cancel-btn').addEventListener('click', () => {
+  document.getElementById('edit-cancel-btn').addEventListener('click', () => {
     selectedTxId = null;
-    confirmRow.remove();
+    editRow.remove();
     document.querySelectorAll('#tx-body tr.selected').forEach(r => r.classList.remove('selected'));
   });
 }

@@ -641,6 +641,90 @@ body {
   }
 }
 
+/* Edit inline row */
+.edit-inline-cell {
+  background: #eef4fb;
+  border-top: 2px solid #2c5f8a;
+  border-bottom: 2px solid #2c5f8a;
+  padding: 14px 16px !important;
+}
+
+.edit-inline-fields {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.edit-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.edit-field-group:first-child {
+  flex: 1;
+  min-width: 160px;
+}
+
+.edit-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a3a5c;
+}
+
+.edit-input {
+  padding: 8px 10px;
+  border: 1.5px solid #2c5f8a;
+  border-radius: 6px;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 14px;
+  color: #2d3748;
+  background: white;
+  direction: rtl;
+}
+
+.edit-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(44, 95, 138, 0.15);
+}
+
+.edit-name-input  { width: 100%; }
+.edit-type-input  { width: 130px; }
+.edit-amount-input { width: 110px; }
+
+.edit-inline-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit-save {
+  background: #2c5f8a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-edit-save:hover { background: #1a3a5c; }
+
+.btn-edit-cancel {
+  background: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-edit-cancel:hover { background: #cbd5e0; }
+
 /* Delete inline row */
 .delete-inline-cell {
   background: #fff3cd;

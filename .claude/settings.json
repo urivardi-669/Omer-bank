@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(timeout 5 node server.js)"
+      "Bash(timeout 5 node server.js)",
+      "Read(//c/Users/User/**)",
+      "Bash(עומר \")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\User\\Downloads\\הבנק של עלמה"
     ]
   }
 }

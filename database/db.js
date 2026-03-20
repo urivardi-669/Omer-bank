@@ -134,6 +134,16 @@ async function deleteTransaction(id) {
   await pool.query('DELETE FROM transactions WHERE id = $1', [id]);
 }
 
+async function updateTransaction(id, { name, type, amount }) {
+  const credit = type === 'credit' ? amount : 0;
+  const debit  = type === 'debit'  ? amount : 0;
+  const balance_row = credit - debit;
+  await pool.query(
+    `UPDATE transactions SET name=$1, type=$2, amount=$3, credit=$4, debit=$5, balance_row=$6 WHERE id=$7`,
+    [name, type, amount, credit, debit, balance_row, id]
+  );
+}
+
 async function getAdmin(email) {
   const { rows } = await pool.query(
     'SELECT * FROM admins WHERE email = $1',
@@ -149,6 +159,7 @@ module.exports = {
   insertTransaction,
   approveTransaction,
   deleteTransaction,
+  updateTransaction,
   transactionCount,
   insertToken,
   getToken,

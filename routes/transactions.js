@@ -74,6 +74,32 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PATCH /api/transactions/:id
+router.patch('/:id', async (req, res) => {
+  if (!req.session || !req.session.isAdmin) {
+    return res.status(403).json({ error: 'אין הרשאה' });
+  }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: 'מזהה לא תקין' });
+
+  const { name, type, amount } = req.body;
+  if (!name || typeof name !== 'string' || !name.trim())
+    return res.status(400).json({ error: 'שם התנועה חסר' });
+  if (!['credit', 'debit'].includes(type))
+    return res.status(400).json({ error: 'סוג תנועה לא תקין' });
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount) || parsedAmount <= 0)
+    return res.status(400).json({ error: 'סכום לא תקין' });
+
+  try {
+    await db.updateTransaction(id, { name: name.trim(), type, amount: parsedAmount });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('שגיאה בעדכון תנועה:', err.message);
+    res.status(500).json({ error: 'שגיאת שרת' });
+  }
+});
+
 // DELETE /api/transactions/:id
 router.delete('/:id', async (req, res) => {
   if (!req.session || !req.session.isAdmin) {
