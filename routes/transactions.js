@@ -150,4 +150,38 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET /api/transactions/monthly-backup?secret=xxx
+router.get('/monthly-backup', async (req, res) => {
+  const secret = process.env.BACKUP_SECRET;
+  if (!secret || req.query.secret !== secret) {
+    return res.status(403).json({ error: 'אין הרשאה' });
+  }
+  try {
+    const XLSX = require('xlsx');
+    const { sendMonthlyBackup } = require('../services/email');
+
+    const transactions = await db.getTransactions('', '');
+    const balance = await db.getBalance();
+
+    const rows = transactions.map(tx => ({
+      'שם התנועה': tx.name,
+      'זכות': tx.credit || 0,
+      'חובה': tx.debit || 0,
+      'מאזן': tx.balance_row || 0,
+    }));
+    rows.push({ 'שם התנועה': 'סה"כ מאזן', 'זכות': '', 'חובה': '', 'מאזן': balance });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'תנועות');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    await sendMonthlyBackup(buf);
+    res.json({ success: true, message: 'גיבוי נשלח בהצלחה' });
+  } catch (err) {
+    console.error('שגיאה בשליחת גיבוי:', err.message);
+    res.status(500).json({ error: 'שגיאת שרת' });
+  }
+});
+
 module.exports = router;

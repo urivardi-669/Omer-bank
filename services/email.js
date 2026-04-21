@@ -57,4 +57,26 @@ async function sendApprovalRequest(token, tx) {
   await sgMail.send(msg);
 }
 
-module.exports = { sendApprovalRequest };
+async function sendMonthlyBackup(xlsxBuffer) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const date = new Date().toLocaleDateString('he-IL');
+  const msg = {
+    to: ['uri.vardi@gmail.com', 'irit.neumann@gmail.com'],
+    from: process.env.SENDGRID_FROM || process.env.SMTP_USER,
+    subject: `גיבוי חודשי — הבנק של עומר (${date})`,
+    text: `מצורף קובץ גיבוי חודשי של כל תנועות הבנק של עומר.`,
+    attachments: [
+      {
+        content: xlsxBuffer.toString('base64'),
+        filename: `omer-bank-backup-${new Date().toISOString().slice(0, 10)}.xlsx`,
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        disposition: 'attachment',
+      },
+    ],
+  };
+
+  await sgMail.send(msg);
+}
+
+module.exports = { sendApprovalRequest, sendMonthlyBackup };
