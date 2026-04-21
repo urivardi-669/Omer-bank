@@ -36,6 +36,22 @@ function setAdminUI(loggedIn, email) {
     adminBtn.textContent = 'כניסת מנהל';
     adminBtn.classList.remove('logged-in');
   }
+
+  let exportBtn = document.getElementById('export-btn');
+  if (loggedIn) {
+    if (!exportBtn) {
+      exportBtn = document.createElement('button');
+      exportBtn.id = 'export-btn';
+      exportBtn.textContent = 'ייצוא לאקסל';
+      exportBtn.className = 'btn-export';
+      exportBtn.addEventListener('click', () => {
+        window.location.href = '/api/transactions/export';
+      });
+      adminBtn.parentNode.insertBefore(exportBtn, adminBtn.nextSibling);
+    }
+  } else {
+    if (exportBtn) exportBtn.remove();
+  }
 }
 
 // Open/close modal or logout

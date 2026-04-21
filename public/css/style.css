@@ -96,6 +96,22 @@ body {
   border-color: rgba(40, 167, 69, 0.6);
 }
 
+.btn-export {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-export:hover {
+  background: rgba(255,255,255,0.25);
+}
+
 .admin-badge {
   display: inline-flex;
   align-items: center;
